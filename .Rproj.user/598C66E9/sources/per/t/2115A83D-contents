@@ -1,0 +1,22 @@
+library(tidyverse)
+library(RedditExtractoR)
+
+daily_thread_search <- RedditExtractoR::find_thread_urls(keywords = "Daily Discussion Thread",
+                                                         sort_by = "new", 
+                                                         subreddit = "coys",
+                                                         period = "all")
+
+
+
+daily_thread_search_21 <- RedditExtractoR::find_thread_urls(keywords = "Daily Discussion Thread (2021)",
+                                                         sort_by = "new", 
+                                                         subreddit = "coys",
+                                                         period = "all")
+
+
+daily_threads <- daily_thread_search |> 
+  bind_rows(daily_thread_search_21)
+
+
+write_csv(daily_threads, "daily_threads.csv")
+
