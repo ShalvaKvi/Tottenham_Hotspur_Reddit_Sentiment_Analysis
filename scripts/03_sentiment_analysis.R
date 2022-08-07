@@ -80,6 +80,7 @@ thread_info <- thread_info |>
 
 # Combine Results and Thread Info for the dashboard
 combined_data <- thread_info |> 
+  mutate(date = lubridate::as_date(date)) |> 
   arrange(date) |> 
   left_join(results, by = 'date') |> 
   mutate(matchday = factor(ifelse(is.na(opponent), yes = 0, no = 1))) |> 
@@ -93,5 +94,5 @@ combined_data <- combined_data |>
 
 
 ## Write files -
-write_rds(combined_data, './dashboard/data/combined_data.rds')
-write_csv(comments, './dashboard/data/comments.csv')
+write_rds(combined_data, './dashboard/combined_data.rds')
+write_rds(comments, './dashboard/comments.rds')

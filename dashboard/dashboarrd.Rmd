@@ -18,7 +18,7 @@ library(tidyverse)
 library(plotly)
 
 combined_data <- read_rds('combined_data.rds')
-comments <- read_csv('comments.csv')
+comments <- read_rds('comments.rds')
 
 ```
 

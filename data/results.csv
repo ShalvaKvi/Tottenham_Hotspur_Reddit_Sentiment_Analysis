@@ -29,7 +29,7 @@ date,opponent,score,score_tot,score_op,win
 2021-12-28T00:00:00Z,Southampton FC,1:1,1,1,0.5
 2022-01-01T00:00:00Z,Watford FC,1:0,1,0,1
 2022-01-19T00:00:00Z,Leicester City,3:2,3,2,1
-2022-01-23T00:00:00Z,Chelsea FC,0:2,0,2,0
+2022-01-23T00:00:00Z,Chelsea FC ,0:2,0,2,0
 2022-02-09T00:00:00Z,Southampton FC,2:3,2,3,0
 2022-02-13T00:00:00Z,Wolverhampton Wanderers,0:2,0,2,0
 2022-02-19T00:00:00Z,Manchester City,3:2,3,2,1
