@@ -1,0 +1,239 @@
+---
+title: "Tottenham Hotspur Reddit Sentiment Analysis"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    source_code: embed
+    theme: 
+      version: 4
+runtime: shiny
+---
+```{r setup, include=FALSE, context='server'}
+library(flexdashboard)
+library(shiny)
+library(bslib)
+
+library(lubridate)
+library(tidyverse)
+library(plotly)
+
+combined_data <- read_rds('combined_data.rds')
+comments <- read_csv('comments.csv')
+
+```
+
+Inputs {.sidebar}
+=======================
+```{r}
+
+radioButtons(inputId = 'thread_type', label = 'Choose The Thread Type:',
+             choiceNames = c('Match Thread', 'Post-Match Thread', 'Pre-Match Thread', 'Daily Discussion'), 
+             choiceValues = c('match', 'post_match', 'pre_match', 'daily'),
+             selected = 'match')
+
+```
+
+
+Dashboard
+=======================
+
+Row {data-height=115}
+-----------------------
+### Average Win Sentiment {.value-box}
+
+```{r}
+renderValueBox({
+  
+  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
+
+  
+  valueBox(value = round(sentiment_win, digits = 3),
+           icon = 'ion-android-happy',
+           color = '#0072B5')
+})
+
+```
+
+### Average Win Polarity (Sentiment SD) {.value-box}
+
+```{r}
+renderValueBox({
+  
+  polarity_win <- mean(combined_data$polarity[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
+
+  
+  valueBox(value = round(polarity_win, digits = 3),
+           icon = 'ion-arrow-swap',
+           color = '#0072B5')
+})
+
+```
+
+### Average Win Comment Word Count {.value-box}
+
+```{r}
+renderValueBox({
+  
+  words_win <- mean(combined_data$mean_words[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
+
+  
+  valueBox(value = round(words_win, digits = 3),
+           icon = 'ion-chatbubbles',
+           color = '#0072B5')
+})
+
+```
+
+Row {data-height=115}
+-----------------------
+### Average Lose Sentiment {.value-box}
+
+```{r}
+renderValueBox({
+  
+  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
+
+  
+  valueBox(value = round(sentiment_win, digits = 3),
+           icon = 'ion-android-sad',
+           color = '#BC3C29')
+})
+
+```
+
+### Average Lose Polarity (Sentiment SD) {.value-box}
+
+```{r}
+renderValueBox({
+  
+  polarity_win <- mean(combined_data$polarity[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
+
+  
+  valueBox(value = round(polarity_win, digits = 3),
+           icon = 'ion-arrow-swap',
+           color = '#BC3C29')
+})
+
+```
+
+### Average Lose Comment Word Count {.value-box}
+
+```{r}
+renderValueBox({
+  
+  words_win <- mean(combined_data$mean_words[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
+
+  
+  valueBox(value = round(words_win, digits = 3),
+           icon = 'ion-chatbubbles',
+           color = '#BC3C29')
+})
+
+```
+
+Row {data-height=770}
+-----------------------
+### Main Plot {data-width=650}
+
+```{r main_plot}
+renderPlotly({
+
+  if (input$thread_type != 'daily') {  
+  
+  plot_data <- combined_data |> 
+    filter(thread_type == input$thread_type)
+    
+    plot <- plot_data |>
+      ggplot(aes(x = date,y = mean_sentiment, text = paste0('Date: ', date, '\n', 
+                                                            'Match: ',score_label, '\n', 
+                                                            'Sentiment: ', mean_sentiment))) +
+        geom_hline(yintercept = 0) +
+        geom_segment(aes(yend = 0, xend = date, color = win),
+                       lineend = "round",
+                       size = 1.5) +
+        geom_point(aes(y = mean_sentiment, color = win),
+                     size = 3) +
+        
+        scale_color_manual(values = c("#0072B5", "#20854E", "#BC3C29")) +
+        scale_y_continuous(limits = c(-0.2, 0.4)) +
+        
+        labs(title = "r/coys Match Thread Average Sentiment",
+              y = "Average sentiment",
+              color = "Game outcome") +
+        theme(text = element_text(family = "Candara", size = 16),
+              legend.position = "bottom",
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank()
+          )
+
+    }
+  
+    else{
+    
+    plot_data <- combined_data |> 
+      filter(thread_type == "daily")
+  
+    plot <- plot_data |> 
+      ggplot(aes(x = date, y = mean_sentiment, text = ifelse(matchday == 1, 
+                                                             paste0('Date: ', date, '\n', 
+                                                             'Match: ',score_label, '\n', 
+                                                             'Sentiment: '),
+                                                             paste0('Date: ', date)))) +
+      
+      geom_segment(aes(yend = 0, xend = date, color = win, size = matchday),
+                   lineend = "round") +
+
+      scale_color_manual(values = c("#0072B5", "#20854E", "#BC3C29")) +
+      scale_size_manual(values = c(0.1, 1)) +
+      scale_y_continuous(limits = c(-0.2, 0.4)) +
+
+      
+      labs(title = "r/coys Match Thread Average Sentiment",
+           y = "Average sentiment",
+           color = "Game outcome") +
+      theme(text = element_text(family = "Candara", size = 16),
+            legend.position = "bottom",
+            axis.title.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank()
+      )
+            
+    
+  }
+
+  
+  ggplotly(plot, tooltip = 'text', source = 'main_plot') %>% 
+  layout(legend = list(orientation = 'h'))
+  
+})
+  
+```
+
+### Comment Explorer {data-width=350}
+
+```{r comment_table}
+
+renderDataTable(options = list(pageLength = 10,
+                 dom = "t"),{
+
+  clickData <- event_data("plotly_click", source = "main_plot")
+   if (is.null(clickData)) return(NULL)
+
+  click_y <- clickData[["y"]]
+  
+  thread_url <- combined_data |> 
+    filter(thread_type == input$thread_type) |> 
+    filter(mean_sentiment == as.numeric(click_y) | polarity == as.numeric(click_y))
+
+  df <- comments |>
+    filter(url == thread_url$url[1]) |>
+    select("Upvotes" = score, "Comment" = comment) |> 
+    arrange(desc(Upvotes))
+
+  df
+})
+
+
+```
+

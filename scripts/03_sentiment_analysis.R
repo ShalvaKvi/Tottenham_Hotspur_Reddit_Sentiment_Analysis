@@ -4,6 +4,8 @@ library(sentimentr)
 
 
 # Getting everything ready ----
+## Read Results
+results <- read_csv('./data/results.csv')
 ## Read thread information
 daily_threads_info <- read_csv("./data/thread_search_results/daily_threads_info.csv")
 pre_match_info <- read_csv("./data/thread_search_results/pre_match_threads_info.csv")
@@ -75,8 +77,21 @@ thread_info <- thread_info |>
     url %in% daily_threads_info$url ~ "daily",
   ))
 
-# 
+
+# Combine Results and Thread Info for the dashboard
+combined_data <- thread_info |> 
+  arrange(date) |> 
+  left_join(results, by = 'date') |> 
+  mutate(matchday = factor(ifelse(is.na(opponent), yes = 0, no = 1))) |> 
+  fill(win)
+
+combined_data <- combined_data |> 
+  mutate(win = factor(win, levels = c(1, 0.5, 0), labels = c("Win", "Draw", "Lose")),
+         score_label = paste('Tottenham Hotspur', score.y, opponent),
+         mean_sentiment = round(mean_sentiment, digits = 5),
+         polarity = round(polarity, digits = 5))
+
 
 ## Write files -
-write_csv(comments, './data/comments.csv')
-write_csv(thread_info, './data/thread_info.csv')
+write_rds(combined_data, './dashboard/data/combined_data.rds')
+write_csv(comments, './dashboard/data/comments.csv')
