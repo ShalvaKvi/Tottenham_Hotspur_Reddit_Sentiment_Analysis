@@ -1,5 +1,5 @@
-.Rproj.user.
+.Rproj.user/
+data/threads/**
 .Rhistory
 .RData
 .Ruserdata
-.data.
