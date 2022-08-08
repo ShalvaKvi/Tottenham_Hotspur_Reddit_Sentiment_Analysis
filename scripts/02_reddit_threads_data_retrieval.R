@@ -1,5 +1,6 @@
 library(tidyverse)
 library(tidylog)
+library(glue)
 library(RedditExtractoR)
 
 results <- read_csv("./data/results.csv")
