@@ -1,35 +1,47 @@
 ---
-title: "Tottenham Hotspur F.C. sub-Reddit (r/coys) Sentiment Analysis"
+title: "Tottenham Hotspur F.C. Reddit (r/coys) Sentiment Analysis Dashboard"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: rows
-    source_code: embed
+    orientation: columns
+    source_code: 'https://github.com/ShalvaKvi/Tottenham_Hotspur_Reddit_Sentiment_Analysis'
     theme:
       bootswatch: "cosmo"
+      fg: "#273461"
+      primary: "#273461"
+      base_font: !expr bslib::font_google("Roboto")
+      enable-gradients: "TRUE"
+      enable-shadows: "TRUE"
+      enable-rounded: "TRUE"
+      spacer: "1rem"
+      bg: "#fff"
 runtime: shiny
 ---
-```{r setup, include=FALSE, context='server'}
+```{r setup, include=FALSE}
+# Load Libraries
 library(flexdashboard)
 library(shiny)
 library(bslib)
 
 library(dplyr)
+library(readr)
 library(plotly)
 
 # Read data
 combined_data <- read_rds('combined_data.rds')
 comments <- read_rds('comments.rds')
-
 ```
 
+```{css}
+.value-box {
+  height: 95px;
+}
+```
 
-Dashboard
-=======================
-
-Sidebar {.sidebar}
+Sidebar {data-width=50}
 -----------------------
 
-**Pick a thread type to explore the sentiment score in the interactive graph!**
+<font size="5">**Pick a thread type to explore the sentiment score in the interactive graph!**</font>
+<font size="3">
 ```{r}
 
 # Thread choose
@@ -42,115 +54,23 @@ radioButtons(inputId = 'thread_type', label = '',
 renderText({
   
   if (input$thread_type == 'match') {
-    'Match Threads are where ongoing live matches are discussed as they occur. Discussion usually starts right before the kick-off and ends at the final whistle. \n Each bar indicates a thread that is dedicated to a match. Click on any thread to explore the comments!'
-  } else if (input$thread_type == 'post_match') {
-    'Post-Match Threads are where concluded matches are discussed. Discussion usually starts right after the final whistle and lasts for several hours. \n Each bar indicates a thread that is dedicated to a match. Click on any thread to explore the comments!'
-  } else {'Daily Threads are where everyday general discussion takes place. Discussion is always ongoing and there is a new thread every day. \n In this graph, thick bars indicate a daily discussion threads that occured on the same day as a match, narrow bars indicate threads that did not had a match the same day.'}
+    'Match Threads are where ongoing live matches are discussed as they occur. Discussion usually starts right before the kick-off and ends at the final whistle. \n Each bar indicates a thread that is dedicated to a match. Click on any thread to browse the comments!'} 
+  
+  else if (input$thread_type == 'post_match') {
+    'Post-Match Threads are where concluded matches are discussed. Discussion usually starts right after the final whistle and lasts for several hours. \n Each bar indicates a thread that is dedicated to a match. Click on any thread to browse the comments!'} 
+  
+  else {'Daily Threads are where everyday general discussion takes place. Discussion is always ongoing and there is a new thread every day. \n In this graph, thick bars indicates threads that also had a match at the same day, narrow bars indicate threads that did not had a match at the same day. You can zoom in using the graph toolbar.'}
   
   
 })
 
 ```
 
-Want to know more about how the sentiment score was calculated and the methodology? Click the **'About'** button on the navigation bar!
+Want to know more about how the sentiment score was calculated and other technical bits? Click the **Source Code** button on the navigation bar! </font>
 
-Row {data-height=115}
+Main Plot {data-width=625}
 -----------------------
-### Average Win Sentiment {.value-box}
-
-```{r}
-renderValueBox({
-  
-  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
-
-  
-  valueBox(value = round(sentiment_win, digits = 3),
-           icon = 'ion-android-happy',
-           color = '#14B358')
-})
-
-```
-
-### Average Win Polarity (Sentiment SD) {.value-box}
-
-```{r}
-renderValueBox({
-  
-  polarity_win <- mean(combined_data$polarity[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
-
-  
-  valueBox(value = round(polarity_win, digits = 3),
-           icon = 'ion-arrow-swap',
-           color = '#14B358')
-})
-
-```
-
-### Average Win Comment Word Count {.value-box}
-
-```{r}
-renderValueBox({
-  
-  words_win <- mean(combined_data$mean_words[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
-
-  
-  valueBox(value = round(words_win, digits = 3),
-           icon = 'ion-chatbubbles',
-           color = '#14B358')
-})
-
-```
-
-Row {data-height=115}
------------------------
-### Average Lose Sentiment {.value-box}
-
-```{r}
-renderValueBox({
-  
-  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
-
-  
-  valueBox(value = round(sentiment_win, digits = 3),
-           icon = 'ion-android-sad',
-           color = '#CE3323')
-})
-
-```
-
-### Average Lose Polarity (Sentiment SD) {.value-box}
-
-```{r}
-renderValueBox({
-  
-  polarity_win <- mean(combined_data$polarity[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
-
-  
-  valueBox(value = round(polarity_win, digits = 3),
-           icon = 'ion-arrow-swap',
-           color = '#CE3323')
-})
-
-```
-
-### Average Lose Comment Word Count {.value-box}
-
-```{r}
-renderValueBox({
-  
-  words_win <- mean(combined_data$mean_words[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
-
-  
-  valueBox(value = round(words_win, digits = 3),
-           icon = 'ion-chatbubbles',
-           color = '#CE3323')
-})
-
-```
-
-Row {data-height=770}
------------------------
-### r/coys Average Reddit Thread Sentiment {data-width=650}
+### r/coys Average Thread Sentiment
 
 ```{r main_plot}
 renderPlotly({
@@ -206,7 +126,7 @@ renderPlotly({
                    lineend = "round") +
 
       scale_color_manual(values = c("#14B358", "#1A7FC2", "#CE3323")) +
-      scale_size_manual(values = c(0.1, 1)) +
+      scale_size_manual(values = c(0.2, 1)) +
       scale_y_continuous(limits = c(-0.2, 0.4)) +
 
       
@@ -228,7 +148,7 @@ renderPlotly({
   
   ggplotly(plot, tooltip = 'text', source = 'main_plot') %>% 
     layout(legend = list(orientation = 'h')) %>%
-    layout(annotations = list(x = 1, y = 1, text = "Click on any thread data point to open the comment explorer", 
+    layout(annotations = list(x = 1, y = 1, text = "Click on any thread data point to open the comments browser", 
       showarrow = F, xref = 'paper', yref = 'paper', 
       xanchor = 'right', yanchor = 'auto', xshift = 0, yshift = 0,
       font = list(size = 15, color = "black")))
@@ -237,12 +157,62 @@ renderPlotly({
   
 ```
 
-### Comment Explorer {data-width=350}
+Side Panel {data-width=325}
+-----------------------
+### Average sentiment for wins {.value-box}
+
+```{r}
+renderValueBox({
+  
+  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Win'])
+
+  
+  valueBox(value = round(sentiment_win, digits = 3),
+           icon = 'ion-android-happy',
+           color = '#14B358')
+})
+
+```
+
+
+### Average sentiment for draws {.value-box}
+
+```{r}
+renderValueBox({
+  
+  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Draw'])
+
+  
+  valueBox(value = round(sentiment_win, digits = 3),
+           icon = 'ion-navicon-round',
+           color = '#1A7FC2')
+})
+
+```
+
+
+### Average sentiment for losses {.value-box}
+
+```{r}
+renderValueBox({
+  
+  sentiment_win <- mean(combined_data$mean_sentiment[combined_data$thread_type == input$thread_type & combined_data$win == 'Lose'])
+
+  
+  valueBox(value = round(sentiment_win, digits = 3),
+           icon = 'ion-android-sad',
+           color = '#CE3323')
+})
+
+```
+
+
+### Comments Browser
 
 ```{r comment_table}
 
-renderDataTable(options = list(pageLength = 10,
-                 dom = "t"),{
+renderDataTable(options = list(pageLength = 5,
+                 dom = "tp"),{
 
   clickData <- event_data("plotly_click", source = "main_plot")
    if (is.null(clickData)) return(NULL)
@@ -263,3 +233,5 @@ renderDataTable(options = list(pageLength = 10,
 
 
 ```
+
+
