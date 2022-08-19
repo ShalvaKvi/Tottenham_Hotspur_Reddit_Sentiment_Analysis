@@ -1,7 +1,7 @@
 ![spurs_logo_250x250](https://user-images.githubusercontent.com/102624754/184536016-12c8446b-14a7-46c5-ae71-8b3c5b763a88.jpg)
 
 ## What is this?
-I've been a huge fan of the Tottenham Hotspur Football Club (THFC) of the Premier League for some time now. One of the main platforms that I use to connect with other fans is the dedicated fan subreddit [r/coys](https://www.reddit.com/r/coys/). One cool thing about the subreddit is that every match the club plays has an oragnized match thread that fans can discuss ongoing matches, and post-thread matches, where fans can discuss concluded matches. Because the discussion is so neatly organized in the subreddit, we can easily utilize NLP techniques to analyze those threads and gain some valuable insights! 
+I've been a huge fan of the Tottenham Hotspur Football Club (THFC) of the Premier League for some time now. One of the main platforms that I use to connect with other fans is the dedicated fan subreddit [r/coys](https://www.reddit.com/r/coys/). A cool thing about the subreddit is that every match the club plays has an oragnized match thread that fans can discuss ongoing matches, and post-match threads, where fans can discuss concluded matches. Because the discussion is so neatly organized in the subreddit, we can easily utilize NLP techniques to analyze those threads and gain some valuable insights! 
 
 ### *The following questions peaked my interest the most:*
  1. Can we identify different sentiment patterns for matches where the club won or lost?
